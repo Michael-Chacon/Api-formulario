@@ -1,5 +1,6 @@
 const form = document.querySelector("#form");
 const result = document.querySelector("#result");
+const profiles = document.querySelector("#profiles")
 
 form.addEventListener("submit", sendData);
 
@@ -8,10 +9,10 @@ async function sendData(e) {
   e.preventDefault();
   const dataForm = new FormData(form);
   const objForm = Object.fromEntries(dataForm);
-  console.log(objForm);
   try {
     const datos = await post(objForm);
-    console.log(datos)
+    form.reset()
+    users(datos)
     pintarResultado(datos);
     result.innerHTML = `
             name: ${datos.name}, lastName: ${datos.lastname}, gmail: ${datos.gmail} 
@@ -53,4 +54,21 @@ function pintarResultado(datos) {
             <li class="list-group-item">${datos.lastname}</li>
             <li class="list-group-item">${datos.gmail}</li>
     `;
+}
+
+function users(datos){
+  profiles.innerHTML = ''
+  datos.forEach(user => {
+    profiles.innerHTML += /*html*/ `
+    <div class="card" style="width: 18rem;">
+    <div class="card-body">
+      <h5 class="card-title">${user.name} ${user.lastname}</h5>
+      <h6 class="card-subtitle mb-2 text-muted">${user.gmail}</h6>
+      <a href="#" class="card-link">Delete</a>
+      <a href="#" class="card-link">View profile</a>
+    </div>
+  </div>
+    `
+  })
+  console.log(datos)
 }
