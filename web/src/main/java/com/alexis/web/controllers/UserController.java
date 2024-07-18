@@ -1,10 +1,7 @@
 package com.alexis.web.controllers;
 
 import com.alexis.web.models.User;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +11,14 @@ import java.util.List;
 public class UserController {
     List<User> users = new ArrayList<>();
 
+    @GetMapping("/showUsers")
+    public List<User> showUsers(){
+        return users;
+    }
+
     @PostMapping("/post")
     public List<User> post(@RequestBody User user){
         users.add(user);
-        users.forEach(user1 -> System.out.println(user1.getName()));
         return users;
     }
 }

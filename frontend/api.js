@@ -1,8 +1,19 @@
 const form = document.querySelector("#form");
-const result = document.querySelector("#result");
 const profiles = document.querySelector("#profiles")
 
 form.addEventListener("submit", sendData);
+
+// Cargar datos cuando se recarga la pagina
+document.addEventListener("DOMContentLoaded", () => {
+  makeGet()
+})
+
+//Obtener los datos del endpoin showUsers
+async function makeGet(){
+  const get = await getData();
+  users(get)
+
+}
 
 //Procesar los inputs del formulario
 async function sendData(e) {
@@ -10,13 +21,11 @@ async function sendData(e) {
   const dataForm = new FormData(form);
   const objForm = Object.fromEntries(dataForm);
   try {
-    const datos = await post(objForm);
-    form.reset()
-    users(datos)
-    pintarResultado(datos);
-    result.innerHTML = `
-            name: ${datos.name}, lastName: ${datos.lastname}, gmail: ${datos.gmail} 
-        `;
+    const response = await post(objForm);
+    if(response.ok){
+      form.reset()
+      makeGet()
+    }
   } catch (error) {
     console.error("Failed to post data:", error);
   }
@@ -25,12 +34,12 @@ async function sendData(e) {
 const header = new Headers({
   "Content-Type": "application/json",
 });
-const URL = "http://localhost:8080/api/post";
+const URL = "http://localhost:8080/api";
 
 // Enviar y recibir datos al endpoint post
 const post = async (data) => {
   try {
-    const getData = await fetch(URL, {
+    const getData = await fetch(`${URL}/post`, {
       method: "POST",
       headers: header,
       body: JSON.stringify(data),
@@ -39,23 +48,31 @@ const post = async (data) => {
     if (!getData.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const datos = await getData.json();
-    return datos;
+    return getData
+
   } catch (error) {
     console.error("Error during fetch:", error);
     throw error;
   }
-};
-
-
-function pintarResultado(datos) {
-  result.innerHTML = `   
-            <li class="list-group-item">${datos.name}</li>
-            <li class="list-group-item">${datos.lastname}</li>
-            <li class="list-group-item">${datos.gmail}</li>
-    `;
 }
 
+// Obtener datos del endpoin showUsers
+const getData = async () => {
+  try{
+    const datos = await fetch(`${URL}/showUsers`)
+
+    if (!datos.ok){
+      throw new Error('Problemas con el servidor. Cofigo del error: ' + datos.status)
+    }
+
+    return await datos.json()
+
+  }catch(error){
+    console.log('Algo salio mal: ' + error)
+  }
+}
+
+// Mostrar los datos en el html
 function users(datos){
   profiles.innerHTML = ''
   datos.forEach(user => {
@@ -70,5 +87,4 @@ function users(datos){
   </div>
     `
   })
-  console.log(datos)
 }
